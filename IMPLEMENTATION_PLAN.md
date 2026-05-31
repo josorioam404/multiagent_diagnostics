@@ -14,7 +14,7 @@ Track progress against milestones. Source spec: [implementation.md](implementati
 | M3 | RAG pipeline | Done | ingest, retriever, openFDA |
 | M4 | Specialist agents | Done | medication + disease agents |
 | M5 | Orchestration | Done | 3 Gemini calls → `PatientReport` |
-| M6 | Knowledge base & QA | In progress | Full PDF ingest + RAG regression |
+| M6 | Knowledge base & QA | In progress | Casebook PDF ingest + RAG regression |
 | M7 | Hardening | Planned | CLI, batch semaphore, multi-DRP |
 
 ## Architecture
@@ -31,8 +31,8 @@ Patient (meds + disease)
 
 ### M6 — Knowledge base & validation
 
-- [ ] Add WHO formulary, PCNE PDF, DrugBank CSV under `data/knowledge_base/`
-- [ ] `python -m drp_system.rag.ingest`
+- [x] Pharmacotherapy Casebook PDF (`pharmacotherapy-casebook_929.pdf`)
+- [x] `python -m drp_system.rag.ingest`
 - [ ] RAG smoke queries (metformin+CKD, NSAID+renal)
 - [ ] Run `python -m drp_system.eval.run_eval` on full CSV; review metrics
 

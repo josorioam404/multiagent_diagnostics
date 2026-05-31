@@ -56,11 +56,20 @@ def ingest_csv(path: str) -> list[str]:
     return chunks
 
 
+def _ensure_casebook_in_kb(kb_dir: str) -> None:
+    """Symlink project casebook PDF into knowledge_base when present."""
+    casebook = config.CASEBOOK_PDF
+    link_path = os.path.join(kb_dir, os.path.basename(casebook))
+    if os.path.isfile(casebook) and not os.path.exists(link_path):
+        os.symlink(os.path.relpath(casebook, kb_dir), link_path)
+
+
 def build_vector_store(reset: bool = False) -> int:
     """Ingest knowledge_base files into ChromaDB. Returns chunk count."""
     kb_dir = config.KNOWLEDGE_BASE_DIR
     if not os.path.isdir(kb_dir):
         os.makedirs(kb_dir, exist_ok=True)
+    _ensure_casebook_in_kb(kb_dir)
 
     all_chunks: list[str] = []
     for fname in sorted(os.listdir(kb_dir)):

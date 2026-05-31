@@ -8,6 +8,8 @@ __pycache__/
 .mypy_cache/
 
 data/chroma_db/
+data/knowledge_base/*.pdf
+pharmacotherapy-casebook_929.pdf
 output_report.json
 eval/results/
 

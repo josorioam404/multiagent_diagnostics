@@ -14,8 +14,11 @@ pyenv local 3.12.11        # optional if .python-version is present
 python -m pip install -r requirements.txt
 cp .env.example .env       # add GEMINI_API_KEY
 
-# Seed vector store from test cases (or add PDFs under data/knowledge_base/)
-python -m drp_system.rag.ingest_cases
+# Build vector store from Pharmacotherapy Casebook (place PDF in repo root)
+python -m drp_system.rag.ingest
+
+# Optional: also seed from eval CSV (dev only — can inflate benchmark scores)
+# python -m drp_system.rag.ingest_cases
 
 # Single patient
 python -m drp_system.main --patient-id PT-001
@@ -56,13 +59,13 @@ Free Gemini tier: **10 RPM**, **250 RPD**. Each patient uses **3** API calls. Us
 
 ## Knowledge base
 
-Place PDFs/CSVs in `data/knowledge_base/` (WHO formulary, DrugBank open, PCNE PDF) then:
+Primary source: **Pharmacotherapy Casebook** (`pharmacotherapy-casebook_929.pdf` in the project root). Ingest links it into `data/knowledge_base/` and embeds into ChromaDB:
 
 ```bash
 python -m drp_system.rag.ingest
 ```
 
-See [implementation.md](implementation.md) for source links.
+The PDF is gitignored (copyright). Additional PDFs/CSVs can be dropped in `data/knowledge_base/`.
 
 ## Disclaimer
 

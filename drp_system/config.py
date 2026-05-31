@@ -16,6 +16,7 @@ EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 # EMBED_MODEL = "pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb"
 
 KNOWLEDGE_BASE_DIR = str(ROOT_DIR / "data" / "knowledge_base")
+CASEBOOK_PDF = str(ROOT_DIR / "pharmacotherapy-casebook_929.pdf")
 CASES_CSV_PATH = str(ROOT_DIR / "cases_analysis_v2_clean_en.csv")
 
 RAG_TOP_K = 5
