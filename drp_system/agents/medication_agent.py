@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from drp_system.llm.gemini_client import call_gemini, normalize_drug_name
+from drp_system.llm.gemini_client import call_gemini, normalize_drug_name, truncate_context
 from drp_system.rag.openfda import get_drug_label
 from drp_system.rag.retriever import retrieve
 
@@ -59,7 +59,9 @@ async def run_medication_agent(medications: list[str], disease: str) -> dict:
     med_list = _parse_medications(medications)
     rag_query = f"drug interactions contraindications {' '.join(med_list)} {disease}"
     rag_chunks = retrieve(rag_query)
-    rag_context = "\n---\n".join(rag_chunks) if rag_chunks else "(no RAG context — run ingest)"
+    rag_context = truncate_context(
+        "\n---\n".join(rag_chunks) if rag_chunks else "(no RAG context — run ingest)"
+    )
 
     unique_names = list(dict.fromkeys(normalize_drug_name(m) for m in med_list))
     fda_results = await asyncio.gather(

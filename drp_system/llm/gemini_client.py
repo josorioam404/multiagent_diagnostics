@@ -31,7 +31,7 @@ def _get_model() -> genai.GenerativeModel:
         generation_config=genai.GenerationConfig(
             response_mime_type="application/json",
             temperature=0.2,
-            max_output_tokens=2048,
+            max_output_tokens=config.GEMINI_MAX_OUTPUT_TOKENS,
         ),
     )
 
@@ -44,6 +44,19 @@ def _model_singleton() -> genai.GenerativeModel:
     if _model is None:
         _model = _get_model()
     return _model
+
+
+def reset_model() -> None:
+    """Clear cached model (e.g. after config change)."""
+    global _model
+    _model = None
+
+
+def truncate_context(text: str, max_chars: int | None = None) -> str:
+    limit = max_chars or config.RAG_CONTEXT_MAX_CHARS
+    if len(text) <= limit:
+        return text
+    return text[:limit] + "\n...[context truncated]"
 
 
 def _strip_json_fences(text: str) -> str:

@@ -1,4 +1,4 @@
-from drp_system.llm.gemini_client import call_gemini
+from drp_system.llm.gemini_client import call_gemini, truncate_context
 from drp_system.rag.retriever import retrieve
 
 DISEASE_AGENT_PROMPT = """
@@ -37,8 +37,10 @@ Return ONLY valid JSON matching this schema:
       "severity": "minor|moderate|major"
     }}
   ],
-  "overall_disease_assessment": "string — paragraph summary"
+  "overall_disease_assessment": "string — brief summary (max 3 sentences)"
 }}
+
+Keep all string fields concise so the JSON response fits in one message.
 """
 
 
@@ -46,7 +48,9 @@ async def run_disease_agent(disease: str, medications: list[str]) -> dict:
     """Gemini call #2 — disease-drug relationship analysis."""
     rag_query = f"treatment guidelines {disease} pharmacotherapy drug selection"
     rag_chunks = retrieve(rag_query)
-    rag_context = "\n---\n".join(rag_chunks) if rag_chunks else "(no RAG context — run ingest)"
+    rag_context = truncate_context(
+        "\n---\n".join(rag_chunks) if rag_chunks else "(no RAG context — run ingest)"
+    )
 
     med_lines = []
     for med in medications:

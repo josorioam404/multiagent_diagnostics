@@ -20,7 +20,9 @@ CASEBOOK_PDF = str(ROOT_DIR / "pharmacotherapy-casebook_929.pdf")
 CASES_CSV_PATH = str(ROOT_DIR / "cases_analysis_v2_clean_en.csv")
 
 RAG_TOP_K = 5
+RAG_CONTEXT_MAX_CHARS = 4000
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 80
+GEMINI_MAX_OUTPUT_TOKENS = 8192
 
 COLLECTION_NAME = "drp_knowledge"
