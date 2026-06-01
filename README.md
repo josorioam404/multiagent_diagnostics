@@ -349,14 +349,6 @@ iamedicos/
 
 ---
 
-## Further reading
-
-- [implementation.md](implementation.md) — original implementation guide with prompt templates and example JSON
-- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — milestones, acceptance checklist, risks
-- [PCNE classification](https://www.pcne.org/working-groups/2/drug-related-problem-classification) — framework reference
-
----
-
 ## Security notes
 
 - Never commit `.env` or API keys.

@@ -13,5 +13,7 @@ pharmacotherapy-casebook_929.pdf
 output_report.json
 eval/results/
 eval/TEST_RESULTS.md
+IMPLEMENTATION_PLAN.md
+implementation.md
 
 *.log
