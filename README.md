@@ -205,6 +205,9 @@ python -m drp_system.eval.run_eval --case-id 7 --case-id 9 --concurrency 1
 # First N cases
 python -m drp_system.eval.run_eval --limit 10 --concurrency 1
 
+# Paginated batches (CSV order; offset skips completed rows)
+python -m drp_system.eval.run_eval --offset 13 --limit 10 --concurrency 1
+
 # Full suite (~49 × 3 calls ≈ 147 API calls; stay within 250 RPD)
 python -m drp_system.eval.run_eval --concurrency 1
 ```

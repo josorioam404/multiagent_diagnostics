@@ -49,6 +49,7 @@ def _score_case(prm_expected: str, report) -> dict:
 
 async def _evaluate_cases(
     limit: int | None,
+    offset: int,
     case_ids: list[str] | None,
     concurrency: int,
 ) -> dict:
@@ -56,8 +57,11 @@ async def _evaluate_cases(
     if case_ids:
         id_set = set(case_ids)
         cases = [c for c in cases if c.case_id in id_set]
-    if limit:
-        cases = cases[:limit]
+    else:
+        if offset:
+            cases = cases[offset:]
+        if limit:
+            cases = cases[:limit]
 
     semaphore = asyncio.Semaphore(concurrency)
     results: list[dict] = []
@@ -98,6 +102,8 @@ async def _evaluate_cases(
 
     summary = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "offset": offset,
+        "limit": limit,
         "total": len(results),
         "successful": len(ok),
         "errors": len(results) - len(ok),
@@ -111,6 +117,12 @@ async def _evaluate_cases(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate DRP system on clinical cases")
     parser.add_argument("--limit", type=int, help="Max cases to run")
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Skip first N cases in CSV order (e.g. --offset 13 --limit 10 for cases after 6–18)",
+    )
     parser.add_argument("--case-id", action="append", dest="case_ids", help="Specific case ID(s)")
     parser.add_argument(
         "--concurrency",
@@ -125,7 +137,7 @@ def main() -> None:
     args = parser.parse_args()
 
     summary = asyncio.run(
-        _evaluate_cases(args.limit, args.case_ids, args.concurrency)
+        _evaluate_cases(args.limit, args.offset, args.case_ids, args.concurrency)
     )
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -136,6 +148,9 @@ def main() -> None:
 
     with open(out, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
+
+    if summary["cases"]:
+        print(f"Case IDs: {', '.join(c['case_id'] for c in summary['cases'])}")
 
     print(f"\nResults: {out}")
     print(f"Successful: {summary['successful']}/{summary['total']}")
