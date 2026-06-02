@@ -54,7 +54,7 @@ Hospital pharmacotherapy cases often involve multiple drugs, comorbidities, and 
    - **Orchestrator:** Runs both agents in parallel, then one synthesis call → final PCNE classification.
 
 5. **CLI (`drp_system/main.py`)**  
-   Single-patient run with `--patient-id`, `--medications`, `--disease`, `--output`.
+   Single-patient run with `--patient-id`, `--medications`, `--disease`, `--clinical-history`, `--output`.
 
 6. **Evaluation harness (`drp_system/eval/`)**  
    Loads `cases_analysis_v2_clean_en.csv` (49 annotated cases), runs the pipeline, scores **DRP detection** and **PRM→PCNE category alignment**, writes `eval/results/run_<timestamp>.json`.
@@ -72,7 +72,7 @@ Do **not** use `ingest_cases` for production evaluation—it embeds ground-truth
 ```mermaid
 flowchart TB
   subgraph input [Input]
-    P[patient_id, medications, disease]
+    P[patient_id, medications, disease, clinical_history]
   end
 
   subgraph local [Local / free]
@@ -92,8 +92,9 @@ flowchart TB
     RPT[PatientReport JSON]
   end
 
-  P --> MA
-  P --> DA
+  P -->|meds, disease| MA
+  P -->|meds, disease| DA
+  P -.->|clinical history| OR
   RET --> MA
   RET --> DA
   FDA --> MA
@@ -177,6 +178,7 @@ python -m drp_system.main \
   --patient-id CASE-007 \
   --medications "Triamterene/HCTZ" "Insulin 70/30" "Entex PSE" \
   --disease "Hypertension" \
+  --clinical-history "Patient complains of persistent dry cough." \
   --output output_report.json
 ```
 
@@ -193,7 +195,7 @@ The CLI prints a JSON `PatientReport` and a short summary (DRP present, PCNE cat
 | `HS` | Health situation / disease |
 | `PRM` | Problem type: Safety, Adherence, Efficacy, Indication |
 | `Jus` | Expert justification |
-| `TE` | Clinical evidence excerpt |
+| `TE` | Clinical evidence excerpt (mapped to `clinical_history`) |
 
 **Run evaluation:**
 
@@ -307,7 +309,7 @@ Known failure mode (fixed): Gemini JSON truncated at 2048 output tokens—resolv
 | **Safety** | Remove eval CSV from RAG; separate dev/prod collections |
 | **Compliance** | HIPAA-ready deployment, no PHI in logs, key rotation |
 
-See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for milestone tracking and [implementation.md](implementation.md) for the original design spec.
+
 
 ---
 
