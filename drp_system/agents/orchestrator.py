@@ -4,7 +4,8 @@ import logging
 
 from drp_system.agents.disease_agent import run_disease_agent
 from drp_system.agents.medication_agent import run_medication_agent
-from drp_system.llm.gemini_client import call_gemini
+from drp_system import config
+from drp_system.llm.gemini_client import call_gemini, truncate_context
 from drp_system.models.drp_schema import (
     DRPCause,
     DRPCategory,
@@ -22,6 +23,9 @@ You are a senior clinical pharmacist performing a Drug-Related Problem (DRP) cla
 PATIENT INFORMATION:
 - Medications: {medications}
 - Diagnosed disease: {disease}
+
+CLINICAL HISTORY (patient-specific context — labs, vitals, adherence, course):
+{clinical_history}
 
 MEDICATION AGENT REPORT:
 {medication_report}
@@ -46,7 +50,18 @@ Return ONLY valid JSON matching this schema exactly:
 }}
 
 If no DRP is present, set drp_present to false and classification fields to null.
+
+Use clinical history together with agent reports. Agent reports did not see clinical history.
 """
+
+
+def _format_clinical_history(clinical_history: str | None) -> str:
+    if not clinical_history or not clinical_history.strip():
+        return "(not provided)"
+    return truncate_context(
+        clinical_history.strip(),
+        config.CLINICAL_HISTORY_MAX_CHARS,
+    )
 
 
 def _parse_severity(value: str | None) -> Severity | None:
@@ -98,9 +113,12 @@ async def process_patient(
     patient_id: str,
     medications: list[str],
     disease: str,
+    clinical_history: str | None = None,
 ) -> PatientReport:
     """
     Orchestrate DRP analysis: 2 parallel agent calls + 1 synthesis (3 Gemini calls).
+
+    clinical_history is passed only to the synthesis step, not to specialist agents.
     """
     logger.info("Processing patient %s (3 Gemini calls)", patient_id)
 
@@ -109,9 +127,14 @@ async def process_patient(
         run_disease_agent(disease, medications),
     )
 
+    history_text = _format_clinical_history(clinical_history)
+    if clinical_history and clinical_history.strip():
+        logger.info("Clinical history included in synthesis (%d chars)", len(history_text))
+
     synthesis_prompt = SYNTHESIS_PROMPT.format(
         medications=", ".join(medications),
         disease=disease,
+        clinical_history=history_text,
         medication_report=json.dumps(medication_result, indent=2),
         disease_report=json.dumps(disease_result, indent=2),
     )
@@ -134,6 +157,7 @@ async def process_patient(
         patient_id=patient_id,
         medications=medications,
         disease=disease,
+        clinical_history=clinical_history or "",
         medication_findings=_build_medication_findings(medication_result),
         drp_classification=drp,
     )

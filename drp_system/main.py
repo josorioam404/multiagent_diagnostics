@@ -25,11 +25,16 @@ async def _run(args: argparse.Namespace) -> None:
     disease = args.disease or (
         "Type 2 Diabetes Mellitus with early-stage chronic kidney disease (CKD stage 3)"
     )
+    clinical_history = args.clinical_history or ""
+    if args.clinical_history_file:
+        with open(args.clinical_history_file, encoding="utf-8") as f:
+            clinical_history = f.read().strip()
 
     report = await process_patient(
         patient_id=args.patient_id,
         medications=medications,
         disease=disease,
+        clinical_history=clinical_history or None,
     )
 
     payload = report.model_dump(mode="json")
@@ -61,6 +66,14 @@ def main() -> None:
         help="Medication list (space-separated)",
     )
     parser.add_argument("--disease", help="Diagnosed disease / health situation")
+    parser.add_argument(
+        "--clinical-history",
+        help="Clinical history text (orchestrator only; not sent to specialist agents)",
+    )
+    parser.add_argument(
+        "--clinical-history-file",
+        help="Path to a file with clinical history (orchestrator only)",
+    )
     parser.add_argument(
         "--output",
         default="output_report.json",

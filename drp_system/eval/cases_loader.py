@@ -16,6 +16,11 @@ class ClinicalCase:
     clinical_evidence: str
 
     @property
+    def clinical_history(self) -> str:
+        """Patient-specific context (CSV TE column); orchestrator synthesis only."""
+        return self.clinical_evidence.strip()
+
+    @property
     def medications(self) -> list[str]:
         """Return medication tokens for the pipeline."""
         raw = self.medications_raw.strip()

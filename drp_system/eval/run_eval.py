@@ -74,6 +74,7 @@ async def _evaluate_cases(
                     patient_id=f"CASE-{case.case_id}",
                     medications=case.medications,
                     disease=case.disease,
+                    clinical_history=case.clinical_history,
                 )
                 scores = _score_case(case.prm, report)
                 return {

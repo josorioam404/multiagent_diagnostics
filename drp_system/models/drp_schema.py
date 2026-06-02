@@ -61,5 +61,6 @@ class PatientReport(BaseModel):
     patient_id: str
     medications: list[str]
     disease: str
+    clinical_history: str = ""
     medication_findings: list[MedicationFinding]
     drp_classification: DRPClassification
