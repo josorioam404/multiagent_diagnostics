@@ -1,4 +1,4 @@
-# IA Médicos — DRP Multiagent System
+# DrugChecker — DRP Multiagent System
 
 A **Drug-Related Problem (DRP)** decision-support pipeline that classifies medication issues using the **PCNE v9.1** framework. The system combines three **Gemini 2.5 Flash** calls per patient, a local **RAG** stack over the *Pharmacotherapy Casebook*, and live **openFDA** drug labels—all on a free-tier stack suitable for academic and prototyping use.
 
@@ -16,7 +16,6 @@ A **Drug-Related Problem (DRP)** decision-support pipeline that classifies medic
 6. [Verified behavior](#verified-behavior)
 7. [How it can be improved](#how-it-can-be-improved)
 8. [Project layout](#project-layout)
-9. [Further reading](#further-reading)
 
 ---
 
